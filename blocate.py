@@ -16,19 +16,63 @@ aparse = ap.ArgumentParser(prog='blocate.py',
             description='A more powerful version of locate command',
             epilog='')
 
-aparse.add_argument('searchTerm', metavar='term', type=str,nargs='+',
+aparse.add_argument('searchTerms', metavar='term', type=str,nargs='+',
                     help='A term to AND to with your search')
+
+aparse.add_argument('-v', metavar='term', type=str,nargs='+',
+                    help='Negate the next search term')
+
 aparse.add_argument('--home',  dest='home', action='store_true',
                     help="automatically limit the search to the user's home dir")
 
 aparse.add_argument('--dirs',  dest='dirs', action='store_true',
                     help='only print directories which match or have matching files (but not the files)')
 
-args = aparse.parse_args()
+#
+#   Pre-process the arg list to hide the -v options(!)#_#_(__
+#
+flipnext = False
+newargs = []
+prefix = '**NNNNNNNNNNN**' # note this precludes certain search terms!!
+for a in sys.argv:
+    if flipnext:
+        if a == '-v':
+            print('Command Line error:  no "-v -v"!')
+            quit()
+        newargs.append(prefix+a)  # to be flipped with 'grep -v arg'
+        flipnext=False
+    elif a == '-v':
+        flipnext = True
+    else:
+        newargs.append(a)  # non flipped: 'grep arg'
+
+#
+#   work on the arguments
+#
+
+args = aparse.parse_args(newargs)
+
+#
+#  process -v modifiers
+#
+
+negNext = False
+grepTerms = []
+for term in args.searchTerms[1:]:  # drop program name
+    if negNext:
+        grepTerms.append('-v '+term)
+        negNext = False
+    if term == '-v':
+        negNext = True
+    else:
+        grepTerms.append(term)
+
+print('I found grepterms: ', grepTerms)
 
 homedir = 'unknown'
 if args.home:
     homedir = str(sub.check_output('echo $HOME',shell=True)[:-1].decode('UTF-8'))
+
 
 #print("Home: ",homedir)
 #print("Search Term(s)")
@@ -37,18 +81,22 @@ if args.home:
 cmd = 'locate '
 
 i=0
-for a in args.searchTerm:
+for a in grepTerms:
+        if a.startswith(prefix):   # restore the -v option modifer for grep
+            a = '-v '+ a[len(prefix):]
         if i==0:
             cmd = f'locate {a} '
         else:
             cmd += f'| grep {a} '
         i+=1
+        #print(f'{i:3} {a}')
+
 
 if homedir != 'unknown':
     cmd += f'| grep {homedir}  '
 
 
-#print("Command: ",cmd)
+print("Command: ",cmd)
 
 rawres = sub.check_output(cmd,shell=True)
 
