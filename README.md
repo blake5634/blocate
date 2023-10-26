@@ -12,6 +12,7 @@ positional arguments:
 options:
   -h, --help  show this help message and exit
   -v term [term ...]  Negate the next search term
-  --home      automatically to limit search to users home dir
+  --home      automatically limit the search to the user's home dir
   --dirs      only print directories which match or have matching files (but not the files)
+
 ```
