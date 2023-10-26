@@ -19,7 +19,7 @@ aparse = ap.ArgumentParser(prog='blocate.py',
 aparse.add_argument('searchTerm', metavar='term', type=str,nargs='+',
                     help='A term to AND to with your search')
 aparse.add_argument('--home',  dest='home', action='store_true',
-                    help='automatically to limit search to users home dir')
+                    help="automatically limit the search to the user's home dir")
 
 aparse.add_argument('--dirs',  dest='dirs', action='store_true',
                     help='only print directories which match or have matching files (but not the files)')
