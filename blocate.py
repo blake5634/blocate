@@ -17,10 +17,10 @@ aparse = ap.ArgumentParser(prog='blocate.py',
             epilog='')
 
 aparse.add_argument('searchTerms', metavar='term', type=str,nargs='+',
-                    help='A term to AND to with your search')
+                    help="A search term. Multiple terms are AND'ed together")
 
 aparse.add_argument('-v', metavar='term', type=str,nargs='+',
-                    help='Negate the next search term')
+                    help='Eliminate the next search term from results (grep -v)')
 
 aparse.add_argument('--home',  dest='home', action='store_true',
                     help="automatically limit the search to the user's home dir")
