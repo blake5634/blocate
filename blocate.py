@@ -25,6 +25,9 @@ aparse.add_argument('-v', metavar='term', type=str,nargs='+',
 aparse.add_argument('--home',  dest='home', action='store_true',
                     help="automatically limit the search to the user's home dir")
 
+aparse.add_argument('--cmd',  dest='cmd', action='store_true',
+                    help="print the command line generated for the search")
+
 aparse.add_argument('--dirs',  dest='dirs', action='store_true',
                     help='only print directories which match or have matching files (but not the files)')
 
@@ -67,7 +70,6 @@ for term in args.searchTerms[1:]:  # drop program name
     else:
         grepTerms.append(term)
 
-print('I found grepterms: ', grepTerms)
 
 homedir = 'unknown'
 if args.home:
@@ -95,11 +97,15 @@ for a in grepTerms:
 if homedir != 'unknown':
     cmd += f'| grep {homedir}  '
 
+if args.cmd:
+    print("Command: ",cmd)
 
-print("Command: ",cmd)
-
-rawres = sub.check_output(cmd,shell=True)
-
+#rawres = sub.check_output(cmd,shell=True)
+try:
+    rawres = sub.check_output(cmd,shell=True)
+except sub.CalledProcessError as grepexc:
+    print("Sorry, there were no results")
+    quit()
 # Parse the output as a list of strings
 lines = rawres.decode("utf-8").splitlines()
 
