@@ -23,13 +23,17 @@ aparse.add_argument('-v', metavar='term', type=str,nargs='+',
                     help='Eliminate the next search term from results (grep -v)')
 
 aparse.add_argument('--home',  dest='home', action='store_true',
-                    help="automatically limit the search to the user's home dir")
+                    help="Automatically limit the search to the user's home dir")
 
 aparse.add_argument('--cmd',  dest='cmd', action='store_true',
-                    help="print the command line generated for the search")
+                    help="Print the command line generated for the search")
+
+aparse.add_argument('--update',  dest='update', action='store_true',
+                    help="Update the locate database (requires password).")
 
 aparse.add_argument('--dirs',  dest='dirs', action='store_true',
-                    help='only print directories which match or have matching files (but not the files)')
+                    help='Only print directories which match or have matching files (but not the files)')
+
 
 #
 #   Pre-process the arg list to hide the -v options(!)#_#_(__
@@ -55,13 +59,21 @@ for a in sys.argv:
 
 args = aparse.parse_args(newargs)
 
+args.searchTerms = args.searchTerms[1:]  # drop program name
+#
+#  update DB if asked
+#
+if args.update:
+    tmp = sub.check_output('sudo updatedb',shell=True)
+    if len(args.searchTerms) == 0:
+        quit()
 #
 #  process -v modifiers
 #
 
 negNext = False
 grepTerms = []
-for term in args.searchTerms[1:]:  # drop program name
+for term in args.searchTerms:
     if negNext:
         grepTerms.append('-v '+term)
         negNext = False
