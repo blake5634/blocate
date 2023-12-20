@@ -102,17 +102,18 @@ if args.home:
 
 if args.case:
     cmd = 'locate '
+    grepOpt = ''
 else:  # default is case insensitive
     cmd = 'locate -i '
-
+    grepOpt = '-i'
 i=0
 for a in grepTerms:
         if a.startswith(prefix):   # restore the -v option modifer for grep
             a = '-v '+ a[len(prefix):]
         if i==0:
-            cmd += a
+            cmd += a + ' '
         else:
-            cmd += f'| grep {a} '
+            cmd += f'| grep {grepOpt} {a} '
         i+=1
         #print(f'{i:3} {a}')
 
