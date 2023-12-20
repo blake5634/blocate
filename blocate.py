@@ -12,6 +12,9 @@ args = sys.argv
 #   build argparser
 #
 
+# consider support for these other cool options:
+#https://phoenixnap.com/kb/locate-command-in-linux
+
 aparse = ap.ArgumentParser(prog='blocate.py',
             description='A more powerful version of locate command',
             epilog='')
@@ -21,6 +24,9 @@ aparse.add_argument('searchTerms', metavar='term', type=str,nargs='+',
 
 aparse.add_argument('-v', metavar='term', type=str,nargs='+',
                     help='Eliminate the next search term from results (grep -v)')
+
+aparse.add_argument('--Case',  dest='case', action='store_true',
+                    help="Be case sensitive (default not case sensitive)")
 
 aparse.add_argument('--home',  dest='home', action='store_true',
                     help="Automatically limit the search to the user's home dir")
@@ -59,6 +65,8 @@ for a in sys.argv:
 
 args = aparse.parse_args(newargs)
 
+#print('Args: ', args)
+
 args.searchTerms = args.searchTerms[1:]  # drop program name
 #
 #  update DB if asked
@@ -92,14 +100,17 @@ if args.home:
 #print("Search Term(s)")
 #print(args.searchTerm)
 
-cmd = 'locate '
+if args.case:
+    cmd = 'locate '
+else:  # default is case insensitive
+    cmd = 'locate -i '
 
 i=0
 for a in grepTerms:
         if a.startswith(prefix):   # restore the -v option modifer for grep
             a = '-v '+ a[len(prefix):]
         if i==0:
-            cmd = f'locate {a} '
+            cmd += a
         else:
             cmd += f'| grep {a} '
         i+=1
